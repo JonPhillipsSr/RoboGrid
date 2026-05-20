@@ -1,6 +1,12 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 
+constexpr int tileSize = 40;
+constexpr int windowWidth = 1200;
+constexpr int windowHeight = 800;
+constexpr int gridCols = windowWidth / tileSize;   
+constexpr int gridRows = windowHeight / tileSize;  
+
 struct Robot
 {
     int gridX = 0;
@@ -17,18 +23,13 @@ enum class TileType
 bool canMoveTo(
     int targetX,
     int targetY,
-    int gridCols,
-    int gridRows,
-    const std::array<std::array<TileType, 30>, 20>& worldGrid
-); 
+    const std::array<std::array<TileType, gridCols>, gridRows>& worldGrid
+);
+
 
 int main()
 {
-    const int windowWidth = 1200;
-    const int windowHeight = 800;
-    const int tileSize = 40;
-    const int gridCols = windowWidth / tileSize;
-    const int gridRows = windowHeight / tileSize;
+   
 
     std::array<std::array<TileType, gridCols>, gridRows> worldGrid{};
 
@@ -83,8 +84,6 @@ int main()
                 if (canMoveTo(
                     targetX,
                     targetY,
-                    gridCols,
-                    gridRows,
                     worldGrid))
                 {
                     robot.gridX = targetX;
@@ -171,9 +170,7 @@ int main()
 bool canMoveTo(
     int targetX,
     int targetY,
-    int gridCols,
-    int gridRows,
-    const std::array<std::array<TileType, 30>, 20>& worldGrid
+    const std::array<std::array<TileType, gridCols>, gridRows>& worldGrid
 )
 {
     if (targetX < 0 || targetX >= gridCols)
