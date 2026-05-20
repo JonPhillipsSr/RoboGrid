@@ -351,7 +351,7 @@ bool canMoveTo(
         return false;
     }
 
-    if (worldGrid[targetY][targetX] == TileType::Wall)
+    if (worldGrid[targetY][targetX] == TileType::Wall || worldGrid[targetY][targetX] == TileType::PedestrianPath)
     {
         return false;
     }
