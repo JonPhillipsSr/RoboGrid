@@ -142,6 +142,14 @@
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="resources\fonts\OFL.txt" />
+    <Text Include="resources\fonts\README.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="resources\fonts\Roboto-Italic-VariableFont_wdth,wght.ttf" />
+    <Font Include="resources\fonts\Roboto-VariableFont_wdth,wght.ttf" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" />

@@ -23,4 +23,20 @@
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="resources\fonts\OFL.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="resources\fonts\README.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="resources\fonts\Roboto-Italic-VariableFont_wdth,wght.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
+    <Font Include="resources\fonts\Roboto-VariableFont_wdth,wght.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
+  </ItemGroup>
 </Project>

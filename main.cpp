@@ -39,6 +39,11 @@ int main()
 {
     // Holds the logical state of every tile; default-initialized to Empty
     std::array<std::array<TileType, gridCols>, gridRows> worldGrid{};
+
+    // Load font for sidebar labels
+    sf::Font font;
+    font.openFromFile("resources/fonts/Roboto-Regular.ttf");
+
     TileType activeTile = TileType::Wall;
 
     sf::RenderWindow window(
@@ -239,6 +244,22 @@ int main()
         swatch.setFillColor(sf::Color(0xE6C800FF));  // Pedestrian Path
         swatch.setPosition(sf::Vector2f(windowWidth + 20.f, 120.f));
         window.draw(swatch);
+
+        // Sidebar labels
+        sf::Text label(font, "", 14);
+        label.setFillColor(sf::Color::White);
+
+        label.setString("Wall");
+        label.setPosition(sf::Vector2f(windowWidth + 60.f, 25.f));
+        window.draw(label);
+
+        label.setString("Charger");
+        label.setPosition(sf::Vector2f(windowWidth + 60.f, 75.f));
+        window.draw(label);
+
+        label.setString("Pedestrian Path");
+        label.setPosition(sf::Vector2f(windowWidth + 60.f, 125.f));
+        window.draw(label);
 
         // Outline around the active tile swatch
         sf::RectangleShape highlight(sf::Vector2f(34.f, 34.f));
