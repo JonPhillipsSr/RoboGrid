@@ -94,16 +94,21 @@ int main()
             {
                 int col = mousePressed->position.x / tileSize;
                 int row = mousePressed->position.y / tileSize;
+                bool robotIsHere = (col == robot.gridX && row == robot.gridY);
 
-                if (col >= 0 && col < gridCols && row >= 0 && row < gridRows)
+                if (!robotIsHere)
                 {
-                    if (mousePressed->button == sf::Mouse::Button::Left)
+
+                    if (col >= 0 && col < gridCols && row >= 0 && row < gridRows)
                     {
-                        worldGrid[row][col] = TileType::Wall;
-                    }
-                    if (mousePressed->button == sf::Mouse::Button::Right)
-                    {
-                        worldGrid[row][col] = TileType::Empty;
+                        if (mousePressed->button == sf::Mouse::Button::Left)
+                        {
+                            worldGrid[row][col] = TileType::Wall;
+                        }
+                        if (mousePressed->button == sf::Mouse::Button::Right)
+                        {
+                            worldGrid[row][col] = TileType::Empty;
+                        }
                     }
                 }
             }
