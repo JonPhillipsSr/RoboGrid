@@ -70,11 +70,29 @@ Current implemented tile types:
 
 * Empty
 * Wall
+* Charger
+* Pedestrian Path
+
+## Tile Editor
+
+* Left click to place the selected tile type
+* Click and drag to paint multiple tiles at once
+* Right click to erase tiles back to Empty
+* Cannot place tiles on the robot's current position
+* Clear Grid button resets all tiles to Empty
+
+## Sidebar UI
+
+* Tile type selector with colored swatches
+* Active tile highlight (white outline)
+* Text labels rendered using Roboto font
+* Clear Grid button
 
 ## Collision System
 
 * Robot cannot leave the simulation boundaries
-* Robot collision against wall tiles
+* Robot cannot move into wall tiles
+* All movement validated through a reusable `canMoveTo()` helper function
 
 ---
 
@@ -210,14 +228,18 @@ This project is also intended to serve as a personal learning and portfolio proj
 
 # Current Development Status
 
-Current prototype supports:
+Current implementation includes:
 
-* Grid rendering
-* Robot movement
-* World tiles
-* Wall collision
+* Grid rendering with configurable tile size and colors
+* Robot movement with arrow keys
+* Multiple tile types with distinct colors (Wall, Charger, Pedestrian Path)
+* Interactive tile editor with click and drag painting
+* Sidebar UI with tile type selector, active highlight, and clear grid button
+* Strict separation of simulation state from render state
+* Reusable movement validation via `canMoveTo()` helper function
+* Roboto font loaded from project resources for portable text rendering
 
-The project is currently transitioning from a simple rendering prototype into a true simulation architecture.
+The project has moved beyond the initial rendering prototype and is building out interactive editing and simulation foundation systems.
 
 ---
 
