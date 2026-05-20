@@ -90,7 +90,26 @@ int main()
                     robot.gridY = targetY;
                 }
             }
+            if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>())
+            {
+                int col = mousePressed->position.x / tileSize;
+                int row = mousePressed->position.y / tileSize;
+
+                if (col >= 0 && col < gridCols && row >= 0 && row < gridRows)
+                {
+                    if (mousePressed->button == sf::Mouse::Button::Left)
+                    {
+                        worldGrid[row][col] = TileType::Wall;
+                    }
+                    if (mousePressed->button == sf::Mouse::Button::Right)
+                    {
+                        worldGrid[row][col] = TileType::Empty;
+                    }
+                }
+            }
         }
+
+        
 
         robot.shape.setPosition(sf::Vector2f(
             static_cast<float>(robot.gridX * tileSize + 10),
