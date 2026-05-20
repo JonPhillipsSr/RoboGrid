@@ -14,6 +14,13 @@ enum class TileType
     Wall
 };
 
+bool canMoveTo(
+    int targetX,
+    int targetY,
+    int gridCols,
+    int gridRows,
+    const std::array<std::array<TileType, 30>, 20>& worldGrid
+); 
 
 int main()
 {
@@ -73,16 +80,15 @@ int main()
                     targetY++;
                 }
 
-                if (targetX >= 0 &&
-                    targetX < gridCols &&
-                    targetY >= 0 &&
-                    targetY < gridRows)
+                if (canMoveTo(
+                    targetX,
+                    targetY,
+                    gridCols,
+                    gridRows,
+                    worldGrid))
                 {
-                    if (worldGrid[targetY][targetX] != TileType::Wall)
-                    {
-                        robot.gridX = targetX;
-                        robot.gridY = targetY;
-                    }
+                    robot.gridX = targetX;
+                    robot.gridY = targetY;
                 }
             }
         }
@@ -160,4 +166,30 @@ int main()
     }
 
     return 0;
+}
+
+bool canMoveTo(
+    int targetX,
+    int targetY,
+    int gridCols,
+    int gridRows,
+    const std::array<std::array<TileType, 30>, 20>& worldGrid
+)
+{
+    if (targetX < 0 || targetX >= gridCols)
+    {
+        return false;
+    }
+
+    if (targetY < 0 || targetY >= gridRows)
+    {
+        return false;
+    }
+
+    if (worldGrid[targetY][targetX] == TileType::Wall)
+    {
+        return false;
+    }
+
+    return true;
 }
