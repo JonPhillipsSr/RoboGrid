@@ -8,7 +8,7 @@ constexpr int windowHeight = 800;
 constexpr int gridCols = windowWidth / tileSize;    // 30
 constexpr int gridRows = windowHeight / tileSize;   // 20
 constexpr int sidebarWidth = 200;
-constexpr int totalWindowWidth = windowWidth + sidebarWidth;
+constexpr int totalWindowWidth = windowWidth + sidebarWidth; //1400
 
 // Represents a robot with a logical grid position and a visual shape
 struct Robot
@@ -44,15 +44,38 @@ int main()
     sf::Font font;
     font.openFromFile("resources/fonts/Roboto-Regular.ttf");
 
+    // currently selected tile type for placement
     TileType activeTile = TileType::Wall;
+
+    bool isPainting = false;  // true while left mouse button is held on the grid
+    bool isErasing = false;   // true while right mouse button is held on the grid
+    Robot robot;
+    robot.shape.setRadius(10.f);
+
+    auto paintTile = [&](int mouseX, int mouseY)
+        {
+            if (mouseX >= windowWidth)
+                return; // ignore clicks in the sidebar
+
+            int col = mouseX / tileSize;
+            int row = mouseY / tileSize;
+            bool robotIsHere = (col == robot.gridX && row == robot.gridY);
+
+            if (!robotIsHere && col >= 0 && col < gridCols && row >= 0 && row < gridRows)
+            {
+                if (isPainting)
+                    worldGrid[row][col] = activeTile;
+                if (isErasing)
+                    worldGrid[row][col] = TileType::Empty;
+            }
+        };
 
     sf::RenderWindow window(
         sf::VideoMode({ totalWindowWidth, windowHeight }),
         "RoboGrid"
     );
 
-    Robot robot;
-    robot.shape.setRadius(10.f);
+    
 
     const sf::Color gridColor(0x3278B4FF);
 
@@ -120,22 +143,40 @@ int main()
                         else if (mouseY >= 120 && mouseY <= 150)
                             activeTile = TileType::PedestrianPath;
                     }
+                    // Clear grid button
+                    if (mouseY >= 200 && mouseY <= 235 && mousePressed->button == sf::Mouse::Button::Left)
+                    {
+                        for (auto& row : worldGrid)
+                            row.fill(TileType::Empty);
+                    }
                 }
                 else
                 {
                     // Click is in the grid — place or remove tile
-                    int col = mouseX / tileSize;
-                    int row = mouseY / tileSize;
-                    bool robotIsHere = (col == robot.gridX && row == robot.gridY);
+                    if (mousePressed->button == sf::Mouse::Button::Left)
+                        isPainting = true;
+                    if (mousePressed->button == sf::Mouse::Button::Right)
+                        isErasing = true;
 
-                    if (!robotIsHere && col >= 0 && col < gridCols && row >= 0 && row < gridRows)
-                    {
-                        if (mousePressed->button == sf::Mouse::Button::Left)
-                            worldGrid[row][col] = activeTile;
-                        if (mousePressed->button == sf::Mouse::Button::Right)
-                            worldGrid[row][col] = TileType::Empty;
-                    }
+                    paintTile(mouseX, mouseY);
                 }
+
+               
+            }
+            // Release mouse button to stop painting
+            if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>())
+            {
+                if (mouseReleased->button == sf::Mouse::Button::Left)
+                    isPainting = false;
+                if (mouseReleased->button == sf::Mouse::Button::Right)
+                    isErasing = false;
+            }
+
+            // Drag to paint tiles
+            if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
+            {
+                if (isPainting || isErasing)
+                    paintTile(mouseMoved->position.x, mouseMoved->position.y);
             }
         }
 
@@ -231,7 +272,7 @@ int main()
         window.draw(sidebar);
 
         // Tile Swatches
-        sf::RectangleShape swatch(sf::Vector2f(30.f, 20.f));
+        sf::RectangleShape swatch(sf::Vector2f(34.f, 34.f));
         
         swatch.setFillColor(sf::Color(0xB45A28FF));  // Wall
         swatch.setPosition(sf::Vector2f(windowWidth + 20.f, 20.f));
@@ -273,6 +314,17 @@ int main()
             highlight.setPosition(sf::Vector2f(windowWidth + 18.f, 68.f));
         else if (activeTile == TileType::PedestrianPath)
             highlight.setPosition(sf::Vector2f(windowWidth + 18.f, 118.f));
+
+        // Clear grid button
+        sf::RectangleShape clearButton(sf::Vector2f(160.f, 35.f));
+        clearButton.setFillColor(sf::Color(0x8B0000FF));  // dark red
+        clearButton.setPosition(sf::Vector2f(windowWidth + 20.f, 200.f));
+        window.draw(clearButton);
+
+        sf::Text clearLabel(font, "Clear Grid", 14);
+        clearLabel.setFillColor(sf::Color::White);
+        clearLabel.setPosition(sf::Vector2f(windowWidth + 40.f, 210.f));
+        window.draw(clearLabel);
 
         window.draw(highlight);
 
