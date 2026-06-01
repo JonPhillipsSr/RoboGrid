@@ -51,6 +51,8 @@ int main()
     bool isErasing = false;   // true while right mouse button is held on the grid
     Robot robot;
     robot.shape.setRadius(10.f);
+    robot.shape.setFillColor(sf::Color(0x9B30FFFF));
+
 
     auto paintTile = [&](int mouseX, int mouseY)
         {
