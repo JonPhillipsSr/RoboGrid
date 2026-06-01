@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Pathfinding.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -153,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Grid.h" />
+    <ClInclude Include="Pathfinding.h" />
     <ClInclude Include="Robot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
