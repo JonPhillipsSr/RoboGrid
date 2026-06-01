@@ -1,38 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include <array>
-
-// --- Constants ---
-constexpr int tileSize = 40;
-constexpr int windowWidth = 1200;
-constexpr int windowHeight = 800;
-constexpr int gridCols = windowWidth / tileSize;    // 30
-constexpr int gridRows = windowHeight / tileSize;   // 20
-constexpr int sidebarWidth = 200;
-constexpr int totalWindowWidth = windowWidth + sidebarWidth; //1400
-
-// Represents a robot with a logical grid position and a visual shape
-struct Robot
-{
-    int gridX = 0;              // logical position — the true state of the robot
-    int gridY = 0;
-    sf::CircleShape shape;   // render-only; position is recalculated each frame
-};
-
-// Tile types that can occupy a grid cell
-enum class TileType
-{
-    Empty,
-    Wall,
-    Charger,
-    PedestrianPath
-};
-
-// Returns true if the target cell is in bounds and not a wall
-bool canMoveTo(
-    int targetX,
-    int targetY,
-    const std::array<std::array<TileType, gridCols>, gridRows>& worldGrid
-);
+#include "Grid.h"
+#include "Robot.h"
 
 
 int main()
@@ -336,27 +304,3 @@ int main()
     return 0;
 }
 
-// Validates movement: rejects out-of-bounds positions and wall tiles
-bool canMoveTo(
-    int targetX,
-    int targetY,
-    const std::array<std::array<TileType, gridCols>, gridRows>& worldGrid
-)
-{
-    if (targetX < 0 || targetX >= gridCols)
-    {
-        return false;
-    }
-
-    if (targetY < 0 || targetY >= gridRows)
-    {
-        return false;
-    }
-
-    if (worldGrid[targetY][targetX] == TileType::Wall || worldGrid[targetY][targetX] == TileType::PedestrianPath)
-    {
-        return false;
-    }
-
-    return true;
-}
