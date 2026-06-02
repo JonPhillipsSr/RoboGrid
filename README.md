@@ -54,15 +54,17 @@ The project is intentionally being built incrementally in order to focus on lear
 * Tile-based world architecture
 * Configurable tile size
 * Grid dimensions automatically derived from window size
-* World state stored in a 2D array
+* World state stored in a 2D array of `TileType`
+* Global `constexpr` constants for compile-time grid dimensions
 
 ## Robot System
 
-* Robot represented as a dedicated struct
-* Logical robot coordinates separated from rendering coordinates
-* Grid-based movement using arrow keys
-* Boundary collision prevention
-* Robot rendering centered within tiles
+* Multiple robots supported via `std::vector<Robot>`
+* Each robot has a unique ID assigned at creation
+* Logical grid coordinates strictly separated from render coordinates
+* Robot shape rendered as a circle, centered within tiles
+* Robots store a planned path and current path index for autonomous movement
+* Robots cannot occupy the same tile as another robot
 
 ## Tile Types
 
@@ -78,27 +80,41 @@ Current implemented tile types:
 * Left click to place the selected tile type
 * Click and drag to paint multiple tiles at once
 * Right click to erase tiles back to Empty
-* Cannot place tiles on the robot's current position
+* Cannot place tiles on any robot's current position
 * Clear Grid button resets all tiles to Empty
 
 ## Sidebar UI
 
-* Tile type selector with colored swatches
-* Active tile highlight (white outline)
-* Text labels rendered using Roboto font
-* Clear Grid button
+* Tile type selector with colored swatches and text labels
+* Add Robot / Remove Robot buttons
+* Set Destination mode button
+* Clear Grid button grouped with tile tools
+* Active selection highlight with adaptive size (swatch vs button)
+* Text labels rendered using Roboto font (bundled in project resources)
 
-## Collision System
+## Collision and Movement System
 
-* Robot cannot leave the simulation boundaries
-* Robot cannot move into wall tiles
-* All movement validated through a reusable `canMoveTo()` helper function
+* Robots cannot leave the simulation boundaries
+* Robots cannot move into wall tiles
+* Robots cannot move into pedestrian path tiles
+* All movement validated through a reusable `canMoveTo()` function in `Grid.cpp`
+
+## Pathfinding System
+
+* A* pathfinding implemented in `Pathfinding.h` / `Pathfinding.cpp`
+* Uses Manhattan distance as the heuristic
+* Finds the shortest passable route between two grid positions
+* Returns an empty path if no route exists
+* Robots move autonomously along their assigned path using an `sf::Clock` timer
+* Users assign destinations via the Set Destination sidebar mode:
+  * First click selects a robot
+  * Second click sets the destination and triggers pathfinding
 
 ---
 
 # Current Project Architecture
 
-One of the major architectural goals of RoboGrid is maintaining a strict separation between:
+RoboGrid maintains a strict separation between simulation state and rendering state.
 
 ## Simulation State
 
@@ -106,59 +122,52 @@ The true logical state of the world:
 
 * Robot grid coordinates
 * Tile types
-* Simulation data
+* Pathfinding data
 
 ## Rendering State
 
 The visual representation of that data:
 
 * SFML shapes
-* Grid rendering
-* Visual overlays
+* Grid line rendering
+* Sidebar UI
 
-This separation is intentional because it supports future systems such as:
+This separation supports future systems such as:
 
-* Pathfinding
 * AI behavior
 * Networking
 * Save/load systems
 * Multi-robot coordination
 * Threaded simulation systems
 
+## File Structure
+
+| File | Purpose |
+|---|---|
+| `main.cpp` | Window, event loop, rendering, sidebar UI |
+| `Grid.h` / `Grid.cpp` | TileType enum, grid constants, `canMoveTo()` |
+| `Robot.h` | Robot struct definition |
+| `Pathfinding.h` / `Pathfinding.cpp` | A* pathfinding algorithm |
+
 ---
 
 # Planned Features
 
-## World Systems
-
-* Additional tile types
-* Obstacles
-* Restricted zones
-* Pedestrian pathways
-* Crosswalk systems
-* Workstations
-* Delivery zones
-* Dynamic map editing
-
 ## Robot Systems
 
-* Multiple robots
-* Robot task assignment
 * Battery systems
-* Charger prioritization
-* Traffic management
-* Collision avoidance
-* State machines
+* Charger prioritization and seeking behavior
+* Traffic management and collision avoidance
+* Robot state machines
 * Autonomous task scheduling
+* Robot naming for identification
 
 ## Pathfinding
 
-Planned pathfinding systems include:
-
-* A* pathfinding
 * Route optimization
 * Congestion-aware routing
-* Dynamic rerouting
+* Dynamic rerouting when paths are blocked
+* Visual path display on the grid
 
 ## Simulation Features
 
@@ -171,12 +180,10 @@ Planned pathfinding systems include:
 
 ## UI / Editor Features
 
-* Interactive floor plan editor
-* Tile painting tools
-* Simulation controls
-* Robot placement tools
 * Zoom and camera controls
+* Simulation play/pause/reset controls
 * Configurable simulation settings
+* Save and load floor plans
 
 ## AI Integration (Long-Term Goal)
 
@@ -193,23 +200,6 @@ Potential future integrations:
 
 * Google Gemini
 * OpenAI APIs
-
----
-
-# Planned Refactoring
-
-The project currently exists primarily inside `main.cpp` while foundational systems are being learned and developed.
-
-As the project grows, the architecture will be modularized into separate files and classes.
-
-Planned future structure:
-
-* Robot class
-* Grid class
-* Simulation manager
-* Charging manager
-* Pathfinding systems
-* UI systems
 
 ---
 
@@ -230,16 +220,16 @@ This project is also intended to serve as a personal learning and portfolio proj
 
 Current implementation includes:
 
-* Grid rendering with configurable tile size and colors
-* Robot movement with arrow keys
-* Multiple tile types with distinct colors (Wall, Charger, Pedestrian Path)
+* Multi-file C++ architecture (Grid, Robot, Pathfinding, main)
+* Tile-based grid with multiple tile types and distinct colors
 * Interactive tile editor with click and drag painting
-* Sidebar UI with tile type selector, active highlight, and clear grid button
+* Dynamic robot placement and removal via sidebar
+* A* pathfinding with autonomous robot movement along assigned paths
+* Sidebar UI with tile selection, robot management, and destination setting
 * Strict separation of simulation state from render state
-* Reusable movement validation via `canMoveTo()` helper function
-* Roboto font loaded from project resources for portable text rendering
+* All movement validated through a centralized `canMoveTo()` function
 
-The project has moved beyond the initial rendering prototype and is building out interactive editing and simulation foundation systems.
+The project has a working simulation foundation with autonomous robot pathfinding. Current development is focused on expanding robot behavior systems, including battery management and multi-robot coordination.
 
 ---
 
