@@ -10,4 +10,6 @@ struct Robot
 	int gridX = 0;
 	int gridY = 0;
 	sf::CircleShape shape;
+	std::vector<sf::Vector2i> path;
+	int pathIndex = 0;
 };

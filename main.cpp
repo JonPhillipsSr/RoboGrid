@@ -1,18 +1,23 @@
 #include <SFML/Graphics.hpp>
 #include "Grid.h"
 #include "Robot.h"
+#include "Pathfinding.h"
 
 // Controls what happens when the user clicks the grid
 enum class EditorMode
 {
     PlaceTile,
     AddRobot,
-    RemoveRobot
+    RemoveRobot,
+    SetDestination // click a robot, then click a tile to send it there
 };
+
+sf::Clock moveClock; // tracks time between robot movement steps
+const float moveInterval = 0.25f;  
 
 int main()
 {
-    // Holds the logical state of every tile; default-initialized to Empty
+    // Holds the logical state of every tile; default is Empty
     std::array<std::array<TileType, gridCols>, gridRows> worldGrid{};
 
     // Load font for sidebar labels
@@ -28,6 +33,8 @@ int main()
 
     std::vector<Robot> robots;  // all active robots in the simulation
     int nextRobotId = 0;        // increments each time a robot is added
+
+    int selectedRobotId = -1; // id of the robot currently selected (-1 = none)
 
     // Paints or erases a tile at the given pixel coordinates
     auto paintTile = [&](int mouseX, int mouseY)
@@ -107,6 +114,10 @@ int main()
                             for (auto& row : worldGrid)
                                 row.fill(TileType::Empty);
                         }
+                        else if (mouseY >= 260 && mouseY <= 295)
+                        {
+                            activeMode = EditorMode::SetDestination;
+                        }
                         else if (mouseY >= 705 && mouseY <= 740)
                         {
                             activeMode = EditorMode::AddRobot;
@@ -173,6 +184,41 @@ int main()
                             }
                         }
                     }
+                    else if (activeMode == EditorMode::SetDestination &&
+                        mousePressed->button == sf::Mouse::Button::Left)
+                    {
+                        int col = mouseX / tileSize;
+                        int row = mouseY / tileSize;
+
+                        if (selectedRobotId == -1)
+                        {
+                            // First click — find a robot at this tile and select it
+                            for (const auto& r : robots)
+                            {
+                                if (r.gridX == col && r.gridY == row)
+                                {
+                                    selectedRobotId = r.id;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Second click — set destination for the selected robot
+                            for (auto& r : robots)
+                            {
+                                if (r.id == selectedRobotId)
+                                {
+                                    sf::Vector2i start(r.gridX, r.gridY);
+                                    sf::Vector2i goal(col, row);
+                                    r.path = findPath(start, goal, worldGrid);
+                                    r.pathIndex = 0;
+                                    break;
+                                }
+                            }
+                            selectedRobotId = -1;  // deselect after assigning path
+                        }
+                    }
                 }
             }
 
@@ -194,6 +240,21 @@ int main()
         }
 
         window.clear();
+
+        // --- Update robot positions along their paths ---
+        if (moveClock.getElapsedTime().asSeconds() >= moveInterval)
+        {
+            moveClock.restart();
+            for (auto& r : robots)
+            {
+                if (!r.path.empty() && r.pathIndex + 1 < static_cast<int>(r.path.size()))
+                {
+                    r.pathIndex++;
+                    r.gridX = r.path[r.pathIndex].x;
+                    r.gridY = r.path[r.pathIndex].y;
+                }
+            }
+        }
 
         // --- Draw tiles ---
         for (int row = 0; row < gridRows; row++)
@@ -309,6 +370,17 @@ int main()
         clearLabel.setPosition(sf::Vector2f(windowWidth + 40.f, 180.f));
         window.draw(clearLabel);
 
+        // Set Destination button
+        sf::RectangleShape setDestBtn(sf::Vector2f(160.f, 35.f));
+        setDestBtn.setFillColor(sf::Color(0x1A4B8BFF)); // dark blue
+        setDestBtn.setPosition(sf::Vector2f(windowWidth + 20.f, 260.f));
+        window.draw(setDestBtn);
+
+        sf::Text setDestLabel(font, "Set Destination", 14);
+        setDestLabel.setFillColor(sf::Color::White);
+        setDestLabel.setPosition(sf::Vector2f(windowWidth + 20.f, 270.f));
+        window.draw(setDestLabel);
+
         // Add Robot button — at the bottom of the sidebar
         sf::RectangleShape addRobotBtn(sf::Vector2f(160.f, 35.f));
         addRobotBtn.setFillColor(sf::Color(0x1A6B1AFF));
@@ -356,6 +428,11 @@ int main()
         {
             highlight.setSize(sf::Vector2f(164.f, 39.f));
             highlight.setPosition(sf::Vector2f(windowWidth + 18.f, 748.f));
+        }
+        else if (activeMode == EditorMode::SetDestination)
+        {
+            highlight.setSize(sf::Vector2f(164.f, 39.f));
+            highlight.setPosition(sf::Vector2f(windowWidth + 18.f, 258.f));
         }
 
         window.draw(highlight);
